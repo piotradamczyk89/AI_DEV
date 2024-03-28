@@ -1,4 +1,5 @@
 import asyncio
+from AI_devs import authorization, get_task, solution_task
 from dotenv import load_dotenv
 import os
 import aiohttp
@@ -6,29 +7,11 @@ import langchain
 import time
 
 load_dotenv()
-
-authorizationURL = "https://tasks.aidevs.pl/token/{}"
-taskURL = "https://tasks.aidevs.pl/task/{}"
-taskSolutionURL = "https://tasks.aidevs.pl/answer/{}"
 open_AI_moderation = "https://api.openai.com/v1/moderations"
 
 
-async def authorization(session, task_name):
-    response = await session.post(authorizationURL.format(task_name), json={"apikey": os.getenv('KEY_APP')})
-    json_object = await response.json()
-    return json_object.get('token')
-
-
-async def get_task(session, token):
-    response = await session.get(taskURL.format(token))
-    return await response.json()
-
-
-async def solution_task(session, token, answer):
-    response = await session.post(taskSolutionURL.format(token), json={"answer": answer})
-    return await response.json()
-
-
+# _______________________________________________________________________
+# FIRST TASK
 async def first_task(name):
     async with aiohttp.ClientSession() as session:
         token = await authorization(session, name)
@@ -38,6 +21,8 @@ async def first_task(name):
             print(response)
 
 
+# _______________________________________________________________________
+# SECOND TASK
 async def moderation_request(session, text):
     headers = {
         "Authorization": f"Bearer {os.getenv('OPEN_AI_KEY')}"
