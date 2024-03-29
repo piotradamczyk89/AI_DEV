@@ -22,5 +22,3 @@ async def get_task(session, token):
 async def solution_task(session, token, answer):
     response = await session.post(taskSolutionURL.format(token), json={"answer": answer})
     return await response.json()
-
-

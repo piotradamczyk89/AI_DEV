@@ -1,12 +1,10 @@
 import asyncio
-
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts.chat import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate,
     SystemMessagePromptTemplate,
 )
-
 from AI_devs import authorization, get_task, solution_task
 from dotenv import load_dotenv
 import os
