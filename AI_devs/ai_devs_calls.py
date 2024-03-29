@@ -5,7 +5,6 @@ authorizationURL = "https://tasks.aidevs.pl/token/{}"
 taskURL = "https://tasks.aidevs.pl/task/{}"
 taskSolutionURL = "https://tasks.aidevs.pl/answer/{}"
 
-
 load_dotenv()
 
 
