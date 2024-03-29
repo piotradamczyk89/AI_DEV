@@ -19,6 +19,11 @@ async def get_task(session, token):
     return await response.json()
 
 
+async def post_task_liar(session, token, question):
+    response = await session.post(taskURL.format(token), data={"question": question})
+    return await response.json()
+
+
 async def solution_task(session, token, answer):
     response = await session.post(taskSolutionURL.format(token), json={"answer": answer})
     return await response.json()
