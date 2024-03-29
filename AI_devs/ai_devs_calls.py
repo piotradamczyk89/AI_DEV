@@ -5,7 +5,6 @@ authorizationURL = "https://tasks.aidevs.pl/token/{}"
 taskURL = "https://tasks.aidevs.pl/task/{}"
 taskSolutionURL = "https://tasks.aidevs.pl/answer/{}"
 
-
 load_dotenv()
 
 
@@ -23,3 +22,5 @@ async def get_task(session, token):
 async def solution_task(session, token, answer):
     response = await session.post(taskSolutionURL.format(token), json={"answer": answer})
     return await response.json()
+
+
