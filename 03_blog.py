@@ -1,6 +1,5 @@
 import asyncio
 import time
-
 import aiohttp
 from dotenv import load_dotenv
 from langchain_core.prompts.chat import (
@@ -10,11 +9,14 @@ from langchain_core.prompts.chat import (
 )
 from langchain_openai import OpenAI
 
+
 from AI_devs import authorization, get_task, solution_task
 
 load_dotenv()
 
+
 system_template = ('As a {role} who answers the questions ultra-concisely .'
+
                    '\n\n\n context###{context}###"')
 human_template = '{text}'
 
@@ -37,9 +39,11 @@ def create_prompt(text):
     ).to_messages()
 
 
+
 def create_blog_chapter(titles):
     chat = OpenAI()
     return [asyncio.create_task(chat.ainvoke(title)) for title in titles]
+
 
 
 async def blog(name):
@@ -48,8 +52,10 @@ async def blog(name):
         if token is not None:
             task = await get_task(session, token)
             titles = task.get('blog')
+
             finished_tasks = await asyncio.gather(*create_blog_chapter(titles))
             response = await solution_task(session, token, finished_tasks)
+
             print(response)
 
 
