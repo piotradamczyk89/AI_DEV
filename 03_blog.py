@@ -7,13 +7,16 @@ from langchain_core.prompts.chat import (
     HumanMessagePromptTemplate,
     SystemMessagePromptTemplate,
 )
-from langchain_openai import ChatOpenAI
+from langchain_openai import OpenAI
+
+
 from AI_devs import authorization, get_task, solution_task
 
 load_dotenv()
 
-system_template = ('As a {role} who answers the questions ultra-concisely using CONTEXT below and nothing more and '
-                   'truthfully says /"don\'t know" when the CONTEXT is not enough to give an answer.'
+
+system_template = ('As a {role} who answers the questions ultra-concisely .'
+
                    '\n\n\n context###{context}###"')
 human_template = '{text}'
 
@@ -36,10 +39,11 @@ def create_prompt(text):
     ).to_messages()
 
 
-def create_blog_chapter(title):
-    chat = ChatOpenAI()
-    value = chat.invoke(create_prompt(title))
-    return value.content
+
+def create_blog_chapter(titles):
+    chat = OpenAI()
+    return [asyncio.create_task(chat.ainvoke(title)) for title in titles]
+
 
 
 async def blog(name):
@@ -48,9 +52,10 @@ async def blog(name):
         if token is not None:
             task = await get_task(session, token)
             titles = task.get('blog')
-            chapters = [create_blog_chapter(title) for title in titles]
-            print(chapters)
-            response = await solution_task(session, token, chapters)
+
+            finished_tasks = await asyncio.gather(*create_blog_chapter(titles))
+            response = await solution_task(session, token, finished_tasks)
+
             print(response)
 
 
