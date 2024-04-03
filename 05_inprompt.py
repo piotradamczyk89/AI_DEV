@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 import asyncio
 import json
 import time
@@ -8,43 +9,48 @@ from pathlib import Path
 import aiohttp
 from dotenv import load_dotenv
 from langchain.chains.llm import LLMChain
-from langchain_community.document_loaders.json_loader import JSONLoader
-from langchain_core.documents import Document
-from langchain_core.prompts import PromptTemplate
 from langchain_core.prompts.chat import (
     ChatPromptTemplate,
-    HumanMessagePromptTemplate,
-    SystemMessagePromptTemplate,
 )
-
-from langchain_openai import OpenAI, ChatOpenAI
+from langchain_openai import ChatOpenAI
 
 from AI_devs import authorization, get_task, solution_task
 
 load_dotenv()
 
-about_who_system_template = (
-    'Odpowiedz na pytanie kogo dotyczy to zdanie {question}. Zasady###: '
-    '-odpowiadaj po polsku '
-    '-odpowiedz tylko iminiem osoby,'
-    '-odpowiedz bez znaków nowej lini'
-    '-w odpowiedzi nie mozea byc "-"'
-    'Przyklad### Q:Piotrek lubi wafle A:Piotrek, Q:Czy widziałeś gdzies Marka A:Marek')
+system_template = """Return name from the input
+Rules###
+-Return only name
+-Do not put any special characters like "-" or new line sign 
 
-answer_question_prompt = 'using context: {context} answer question {question} '
+Examples###
+Q:Piotrek lubi wafle
+A:Piotrek
+ 
+Q:Czy widziałeś gdzies Marka?
+A:Marek
+
+Q:Ulubion zajęcie Karola to bieganie
+A:Karol
+"""
+
+human_template = "{data}"
+
+system_template_2 = 'using only context: {context} answer question '
+human_template_2 = "{question}"
 
 
 def create_task(informations):
     chat = ChatOpenAI()
-    chain = LLMChain(llm=chat, prompt=PromptTemplate.from_template(about_who_system_template))
-    return [asyncio.create_task(chain.ainvoke({'question': information})) for information in informations]
+    chain = LLMChain(llm=chat,
+                     prompt=ChatPromptTemplate.from_messages([("system", system_template), ("human", human_template)]))
+    return [asyncio.create_task(chain.ainvoke({'data': information})) for information in informations]
 
 
 async def build_data(data_input):
     if not Path('./05_data.json').is_file():
-        print("robie zapytanie")
         finished_task = await asyncio.gather(*create_task(data_input))
-        documents = [{'page_content': task.get('question'), 'metadata': {'name': task.get('text').strip().strip('-.')}}
+        documents = [{'page_content': task.get('data'), 'metadata': {'name': task.get('text')}}
                      for task in finished_task]
         with open('05_data.json', 'w') as f:
             json.dump(documents, f, )
@@ -52,21 +58,20 @@ async def build_data(data_input):
 
 def read_file_with_data_about(name):
     loader = json.loads(Path('./05_data.json').read_text())
-    print(name)
     return list(filter(lambda o: o.get('metadata').get('name') == name, loader))
 
 
 def answer_question(question):
     chat = ChatOpenAI()
-    chain = LLMChain(llm=chat, prompt=PromptTemplate.from_template(about_who_system_template))
-    name = chain.invoke({'question': question})
-    print(name)
-    fixed_name = name.get('text').strip().strip('-.')
-    context = read_file_with_data_about(fixed_name)
-    answer_chain = LLMChain(llm=chat, prompt=PromptTemplate.from_template(answer_question_prompt))
-    answer = answer_chain.invoke({'context': context, 'question': question})
-    print(answer)
-    return answer.get('text')
+    name = chat.invoke(
+        ChatPromptTemplate.from_messages([("system", system_template), ("human", human_template)]).format_messages(
+            data=question))
+    context = read_file_with_data_about(name.content)
+    answer = chat.invoke(
+        ChatPromptTemplate.from_messages([("system", system_template_2), ("human", human_template_2)]).format_messages(
+            context=[singleContext.get('page_content') for singleContext in context],
+            question=question))
+    return answer.content
 
 
 async def inprompt(name):
