@@ -7,13 +7,11 @@ from langchain_core.prompts.chat import (
     HumanMessagePromptTemplate,
     SystemMessagePromptTemplate,
 )
-from langchain_openai import OpenAI
-
+from langchain_openai import OpenAI, ChatOpenAI
 
 from AI_devs import authorization, get_task, solution_task
 
 load_dotenv()
-
 
 system_template = ('As a {role} who answers the questions ultra-concisely .'
 
@@ -39,11 +37,9 @@ def create_prompt(text):
     ).to_messages()
 
 
-
 def create_blog_chapter(titles):
     chat = OpenAI()
     return [asyncio.create_task(chat.ainvoke(title)) for title in titles]
-
 
 
 async def blog(name):
