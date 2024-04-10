@@ -9,12 +9,14 @@ from pathlib import Path
 import aiohttp
 from dotenv import load_dotenv
 from langchain.chains.llm import LLMChain
+from langchain_core.documents import Document
 from langchain_core.prompts.chat import (
     ChatPromptTemplate,
 )
 from langchain_openai import ChatOpenAI
 
 from AI_devs import authorization, get_task, solution_task
+from Utlis_data import document_from_json
 
 load_dotenv()
 
@@ -50,15 +52,19 @@ def create_task(informations):
 async def build_data(data_input):
     if not Path('./05_data.json').is_file():
         finished_task = await asyncio.gather(*create_task(data_input))
-        documents = [{'page_content': task.get('data'), 'metadata': {'name': task.get('text')}}
+
+        # {'page_content': task.get('data'), 'metadata': }{'name': task.get('text')}
+        documents = [Document(page_content=task.get('data'), metadata={'name': task.get('text')})
                      for task in finished_task]
+
         with open('05_data.json', 'w') as f:
-            json.dump(documents, f, )
+            json.dump([doc.to_json() for doc in documents], f, )
 
 
 def read_file_with_data_about(name):
-    loader = json.loads(Path('./05_data.json').read_text())
-    return list(filter(lambda o: o.get('metadata').get('name') == name, loader))
+    loader = [document_from_json(json_object) for json_object in json.loads(Path('./05_data.json').read_text())]
+    print(loader[1].metadata.get('name'))
+    return list(filter(lambda o: o.metadata.get('name') == name, loader))
 
 
 def answer_question(question):
@@ -69,7 +75,7 @@ def answer_question(question):
     context = read_file_with_data_about(name.content)
     answer = chat.invoke(
         ChatPromptTemplate.from_messages([("system", system_template_2), ("human", human_template_2)]).format_messages(
-            context=[singleContext.get('page_content') for singleContext in context],
+            context=[singleContext.page_content for singleContext in context],
             question=question))
     return answer.content
 
