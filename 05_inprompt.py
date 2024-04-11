@@ -63,7 +63,6 @@ async def build_data(data_input):
 
 def read_file_with_data_about(name):
     loader = [document_from_json(json_object) for json_object in json.loads(Path('./05_data.json').read_text())]
-    print(loader[1].metadata.get('name'))
     return list(filter(lambda o: o.metadata.get('name') == name, loader))
 
 
