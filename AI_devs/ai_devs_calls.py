@@ -1,16 +1,13 @@
 import asyncio
-import time
+import os
 
 import aiohttp
 from aiohttp import ClientSession
 from dotenv import load_dotenv
-import os
-from retry import retry
 
 authorizationURL = "https://tasks.aidevs.pl/token/{}"
 taskURL = "https://tasks.aidevs.pl/task/{}"
 taskSolutionURL = "https://tasks.aidevs.pl/answer/{}"
-import requests
 
 load_dotenv()
 
