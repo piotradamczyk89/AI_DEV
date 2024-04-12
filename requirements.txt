@@ -3,4 +3,4 @@ aiohttp
 asyncio
 requests
 langchain
-retry
+chromadb

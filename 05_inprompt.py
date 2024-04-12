@@ -13,10 +13,10 @@ from langchain_core.documents import Document
 from langchain_core.prompts.chat import (
     ChatPromptTemplate,
 )
-from langchain_openai import ChatOpenAI
-
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from AI_devs import authorization, get_task, solution_task
 from Utlis_data import document_from_json
+from langchain_community.vectorstores import Chroma
 
 load_dotenv()
 
@@ -61,17 +61,39 @@ async def build_data(data_input):
             json.dump([doc.to_json() for doc in documents], f, )
 
 
-def read_file_with_data_about(name):
-    loader = [document_from_json(json_object) for json_object in json.loads(Path('./05_data.json').read_text())]
-    return list(filter(lambda o: o.metadata.get('name') == name, loader))
+def read_file_with_data():
+    return [document_from_json(json_object) for json_object in json.loads(Path('./05_data.json').read_text())]
 
 
-def answer_question(question):
+def filer_data_with_metadata(data, name):
+    return list(filter(lambda o: o.metadata.get('name') == name, data))
+
+
+def similarity_search_from_data(data, question):
+    db = Chroma.from_documents(data, OpenAIEmbeddings())
+    doc = db.similarity_search(question, 1)
+    return doc
+
+
+def answer_question_with_metadata_approach(question):
     chat = ChatOpenAI()
     name = chat.invoke(
         ChatPromptTemplate.from_messages([("system", system_template), ("human", human_template)]).format_messages(
             data=question))
-    context = read_file_with_data_about(name.content)
+
+    data = read_file_with_data()
+    context = filer_data_with_metadata(data, name.content)
+    answer = chat.invoke(
+        ChatPromptTemplate.from_messages([("system", system_template_2), ("human", human_template_2)]).format_messages(
+            context=[singleContext.page_content for singleContext in context],
+            question=question))
+    return answer.content
+
+
+def answer_question_with_vector_base(question):
+    chat = ChatOpenAI()
+    data = read_file_with_data()
+    context = similarity_search_from_data(data, question)
     answer = chat.invoke(
         ChatPromptTemplate.from_messages([("system", system_template_2), ("human", human_template_2)]).format_messages(
             context=[singleContext.page_content for singleContext in context],
@@ -85,9 +107,11 @@ async def inprompt(name):
         if token is not None:
             task = await get_task(session, token)
             await build_data(task.get('input'))
-            answer = answer_question(task.get('question'))
-            solution = await solution_task(session, token, answer)
-            print(solution)
+            # answer = answer_question_with_metadata_approach(task.get('question'))
+            answer2 = answer_question_with_vector_base(task.get('question'))
+            # solution = await solution_task(session, token, answer)
+            solution2 = await solution_task(session, token, answer2)
+            print(solution2)
 
 
 if __name__ == '__main__':
