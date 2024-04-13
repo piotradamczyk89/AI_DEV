@@ -1,11 +1,7 @@
 import asyncio
 import time
 import aiohttp
-from dotenv import load_dotenv
-
 from AI_devs import authorization, get_task, solution_task
-
-load_dotenv()
 
 
 async def first_task(name):
