@@ -10,10 +10,10 @@ from langchain_openai import OpenAIEmbeddings
 
 class VectorBase:
 
-    def __init__(self):
+    def __init__(self, model="text-embedding-ada-002"):
         load_dotenv()
         self.qdrant_client = QdrantClient(url=os.getenv('QDRANT_URL'))
-        self.embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+        self.embeddings = OpenAIEmbeddings(model=model)
 
     def check_collection_exist(self, collection_name):
         collections = self.qdrant_client.get_collections().collections
