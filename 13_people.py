@@ -14,7 +14,8 @@ from Utlis_data import get_data
 
 PEOPLE_COLLECTION_NAME = 'people'
 CATEGORY_COLLECTION_NAME = 'category'
-base = VectorBase()
+base = VectorBase("text-embedding-3-small")
+
 
 
 class Category(Enum):
