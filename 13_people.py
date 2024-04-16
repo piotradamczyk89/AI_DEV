@@ -17,6 +17,7 @@ CATEGORY_COLLECTION_NAME = 'category'
 base = VectorBase("text-embedding-3-small")
 
 
+
 class Category(Enum):
     kolor = 1
     jedzenie = 2
