@@ -11,7 +11,7 @@ from Utils_vector_base import VectorBase
 from Utlis_data import get_data
 
 URL_COLLECTION_NAME = 'url'
-base = VectorBase(URL_COLLECTION_NAME)
+base = VectorBase()
 
 
 def prepare_documents(data):
@@ -35,7 +35,8 @@ async def search():
         token = await authorization(session, "search")
         if token is not None:
             task = await get_task(session, token)
-            base.upload_vectors(prepare_documents(get_data("https://unknow.news/archiwum_aidevs.json")))
+            await base.upload_vectors(URL_COLLECTION_NAME,
+                                      prepare_documents(get_data("https://unknow.news/archiwum_aidevs.json")))
             answer = await get_url_for_question(task.get('question'))
             solution = await solution_task(session, token, answer)
             print(solution)
