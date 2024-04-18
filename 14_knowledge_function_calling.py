@@ -21,7 +21,7 @@ getExchangeRateSchema = {
             }
         },
         "required": [
-            "currency"
+            "argument"
         ]
     }
 }
@@ -38,7 +38,7 @@ getCurrentPopulationSchema = {
             }
         },
         "required": [
-            "country"
+            "argument"
         ]
     }
 }
@@ -55,7 +55,7 @@ answerWithGeneralKnowledge = {
             }
         },
         "required": [
-            "query"
+            "argument"
         ]
     }
 }
