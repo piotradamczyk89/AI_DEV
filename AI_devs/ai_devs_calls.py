@@ -3,7 +3,7 @@ import os
 
 import aiohttp
 from aiohttp import ClientSession
-from dotenv import load_dotenv
+from dotenv.main import load_dotenv
 
 authorizationURL = "https://tasks.aidevs.pl/token/{}"
 taskURL = "https://tasks.aidevs.pl/task/{}"
@@ -38,6 +38,6 @@ async def post_task_liar(session, token, question):
     return await response.json()
 
 
-async def solution_task(session, token, answer):
-    response = await session.post(taskSolutionURL.format(token), json={"answer": answer})
+async def solution_task(session, token, answer, reply=None):
+    response = await session.post(taskSolutionURL.format(token), json={"answer": answer, "reply": reply})
     return await response.json()
