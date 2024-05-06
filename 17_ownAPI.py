@@ -1,0 +1,27 @@
+import asyncio
+import time
+
+import aiohttp
+
+from AI_devs import authorization, get_task, solution_task
+
+
+
+async def ownapi():
+    async with aiohttp.ClientSession() as session:
+        token = await authorization(session, "ownapi")
+        if token is not None:
+            task = await get_task(session, token)
+            print(task)
+            solution = await solution_task(session, token,
+                                           "https://0b9kqzhkpe.execute-api.eu-central-1.amazonaws.com/dev/question")
+            print(solution)
+
+
+if __name__ == '__main__':
+    start = time.time()
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    asyncio.run(ownapi())
+    end = time.time()
+    total_time = end - start
+    print(f"total time {total_time}")

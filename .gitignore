@@ -3,3 +3,4 @@
 venv/
 .env
 05_data.json
+myenv/*
