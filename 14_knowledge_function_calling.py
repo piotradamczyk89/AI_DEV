@@ -4,8 +4,8 @@ import time
 
 import aiohttp
 import requests
+from langchain_community.chat_models.openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
-from langchain_openai import ChatOpenAI
 
 from AI_devs import authorization, get_task, solution_task
 
