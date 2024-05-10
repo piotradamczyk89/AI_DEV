@@ -13,7 +13,6 @@ system_template = """
 Rules###
 Transform human input into string that contains the same information, but around 80% less words. Focus on facts. 
 IMPORTNAT all informations are about {name} so do not mention this person in your response use subjectless sentences
-don not use polsih letter return s instead ś, z instead ż and ż, l insead ł etc.
 
 ommit interpunction
 
